@@ -1,6 +1,7 @@
 %% group data 
 cd /Users/zagnew/Cereb_data/stuffforpaper/daf
 
+z_colours;
 load allcontrolgoodstuff.mat
 load allpatientgoodstuff.mat
 
@@ -105,12 +106,72 @@ control_1000meanutterance(isubj)= nanmean(allcontrolgoodstuff.allcontrolutteranc
 
 end 
 
+%% plots
+
+figure
+whitebg('white')
+annotation('textbox', [0 0.9 1 0.1], ...
+    'String', 'daf pauses', ...
+    'EdgeColor', 'none', ...
+    'HorizontalAlignment', 'center')
+y_pitch2=[nanmean(pat_50meanpause) nanmean(pat_100meanpause) nanmean(pat_200meanpause) nanmean(pat_500meanpause) nanmean(pat_1000meanpause) ; ...
+    nanmean(control_50meanpause) nanmean(control_100meanpause) nanmean(control_200meanpause) nanmean(control_500meanpause) nanmean(control_1000meanpause) ];
+errY2 = [nanstd(pat_50meanpause) nanstd(pat_100meanpause) nanstd(pat_200meanpause) nanstd(pat_500meanpause) nanstd(pat_1000meanpause) ; ...
+    nanstd(control_50meanpause) nanstd(control_100meanpause) nanstd(control_200meanpause) nanstd(control_500meanpause) nanstd(control_1000meanpause) ];
+
+h = barwitherr(errY2, y_pitch2);% Plot with errorbars
+
+set(gca,'XTickLabel',{'Patients','Controls'})
+ylabel('DAF pause length')
+set(h(1),'FaceColor',clear_colour,'EdgeColor', clear_colour ,'LineWidth',1.5);
+set(h(2),'FaceColor',masked_colour,'EdgeColor', masked_colour ,'LineWidth',1.5);
+set(h(3),'FaceColor',standardgrey,'EdgeColor', standardgrey ,'LineWidth',1.5);
+set(h(4),'FaceColor',down_gs,'EdgeColor', down_gs ,'LineWidth',1.5);
+set(h(5),'FaceColor',palegrey,'EdgeColor', palegrey ,'LineWidth',1.5);
+goodplot
+
+print(gcf, '-dpdf', '-r150', '/Users/zagnew/Cereb_data/stuffforpaper/daf/figures/daf_pauses.pdf');
+
+
+% utterances
+figure
+whitebg('white')
+annotation('textbox', [0 0.9 1 0.1], ...
+    'String', 'daf utterances', ...
+    'EdgeColor', 'none', ...
+    'HorizontalAlignment', 'center')
+y_pitch2=[nanmean(pat_50meanutterance) nanmean(pat_100meanutterance) nanmean(pat_200meanutterance) nanmean(pat_500meanutterance) nanmean(pat_1000meanutterance) ; ...
+    nanmean(control_50meanutterance) nanmean(control_100meanutterance) nanmean(control_200meanutterance) nanmean(control_500meanutterance) nanmean(control_1000meanutterance) ];
+errY2 = [nanstd(pat_50meanutterance) nanstd(pat_100meanutterance) nanstd(pat_200meanutterance) nanstd(pat_500meanutterance) nanstd(pat_1000meanutterance) ; ...
+    nanstd(control_50meanutterance) nanstd(control_100meanutterance) nanstd(control_200meanutterance) nanstd(control_500meanutterance) nanstd(control_1000meanutterance) ];
+
+h = barwitherr(errY2, y_pitch2);% Plot with errorbars
+
+set(gca,'XTickLabel',{'Patients','Controls'})
+ylabel('DAF utterance length')
+set(h(1),'FaceColor',clear_colour,'EdgeColor', clear_colour ,'LineWidth',1.5);
+set(h(2),'FaceColor',masked_colour,'EdgeColor', masked_colour ,'LineWidth',1.5);
+set(h(3),'FaceColor',standardgrey,'EdgeColor', standardgrey ,'LineWidth',1.5);
+set(h(4),'FaceColor',down_gs,'EdgeColor', down_gs ,'LineWidth',1.5);
+set(h(5),'FaceColor',palegrey,'EdgeColor', palegrey ,'LineWidth',1.5);
+goodplot
+print(gcf, '-dpdf', '-r150', '/Users/zagnew/Cereb_data/stuffforpaper/daf/figures/daf_utterances.pdf');
+
+
+
 
 %% anova
 daf_anova_data_pause= [pat_50meanpause pat_100meanpause pat_200meanpause pat_500meanpause pat_1000meanpause control_50meanpause control_100meanpause control_200meanpause control_500meanpause control_1000meanpause];
 daf_anova_data_utternace= [pat_50meanutterance pat_100meanutterance pat_200meanutterance pat_500meanutterance pat_1000meanutterance control_50meanutterance control_100meanutterance control_200meanutterance control_500meanutterance control_1000meanutterance];
-cond1 16
-patients 16*5
+group=[ones(1, 80) (ones(1, 50)*2)]
+condition=[ones(1, 16) (ones(1, 16)*2) (ones(1, 16)*3) (ones(1, 16)*4) (ones(1, 16)*5) ones(1, 10) (ones(1, 10)*2) (ones(1, 10)*3) (ones(1, 10)*4) (ones(1, 10)*5)]
+
+group1=[group];
+group2=[condition];
+
+[p,tbl,stats] = anovan(daf_anova_data_pause,{group1 group2 },'model','interaction', 'varnames',{'group','condition',})
+[p,tbl,stats] = anovan(daf_anova_data_utterance,{group1 group2 },'model','interaction', 'varnames',{'group','condition',})
+
 
 subj5daf200trials = find(allpatientgoodstuff.allpatientmsdelay(:,5) == 200)
 subj5daf200meanpause = nanmean(allpatientgoodstuff.allpatientpauses(subj5daf200trials,5))
